@@ -1,0 +1,21 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+*.egg-info/
+
+# Database
+chat.db
+*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
