@@ -7,9 +7,9 @@ from auth.auth_dependency import check_current_user
 from auth.auth_security import hash_password, verify_password, create_access_token, create_refresh_token
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-import hashlib
 from datetime import datetime, timedelta, UTC
 from auth.auth_security import hash_token
+
 router = APIRouter(tags=['Auth'])
 limiter = Limiter(key_func=get_remote_address)
 
@@ -41,22 +41,12 @@ def login(request: Request, response: Response, data: Login, db: Session = Depen
     refresh_token = create_refresh_token({"userId": user.id})
     hashed = hash_token(refresh_token)
 
-    existing_token = db.query(models.RefreshToken).filter(
-        models.RefreshToken.user_id == user.id
-    ).first()
-
-    if existing_token:
-        existing_token.token_hash = hashed
-        existing_token.expires_at = datetime.now(UTC) + timedelta(days=7)
-        existing_token.is_revoked = False
-    else:
-        new_token = models.RefreshToken(
-            token_hash=hashed,
-            user_id=user.id,
-            expires_at=datetime.now(UTC) + timedelta(days=7)
-        )
-        db.add(new_token)
-
+    new_token = models.RefreshToken(
+        token_hash=hashed,
+        user_id=user.id,
+        expires_at=datetime.now(UTC) + timedelta(days=7)
+    )
+    db.add(new_token)
     db.commit()
 
     response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="lax", max_age=15 * 60)
