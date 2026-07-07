@@ -43,7 +43,7 @@ def refresh_access_token(response: Response, refresh_token: str = Cookie(None), 
     db_token.expires_at = datetime.now(UTC) + timedelta(days=7)
     db.commit()
 
-    response.set_cookie(key="access_token", value=new_access_token, httponly=True, max_age=15 * 60)
-    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, max_age=7 * 24 * 60 * 60)
+    response.set_cookie(key="access_token", value=new_access_token, httponly=True,secure=True,samesite="lax", max_age=15 * 60)
+    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True,secure=True,samesite="lax", max_age=7 * 24 * 60 * 60)
 
     return {"message": "Token refreshed"}
